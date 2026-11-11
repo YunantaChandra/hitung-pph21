@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator PPh 21 TER Indonesia</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .header {
+      padding: 24px 24px 0 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-top: 20px;
+      background: var(--accent);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      background: var(--card-bg);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 24px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #eff6ff;
+      color: var(--primary);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Results Box */
+    .result-box {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--accent);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 0.95rem;
+    }
+
+    .result-row:not(:last-child) {
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .result-row.highlight {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      padding-top: 12px;
+    }
+
+    .disclaimer {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 16px;
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>Kalkulator PPh 21 TER</h1>
+      <p>Berdasarkan PP No. 58 Tahun 2023 & PMK 168/2023</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('forward')">Hitung PPh 21</button>
+      <button class="tab-btn" onclick="switchTab('reverse')">Eksperimental: Gaji Terbalik</button>
+    </div>
+
+    <!-- TAB 1: Hitung PPh 21 dari Gaji -->
+    <div id="tab-forward" class="tab-content active">
+      <div class="form-group">
+        <label for="f-gaji">Gaji Bruto Bulanan (Rp)</label>
+        <input type="text" id="f-gaji" placeholder="Contoh: 10.000.000" oninput="formatAndCalcForward()">
+      </div>
+
+      <div class="form-group">
+        <label for="f-ptkp">Status Tanggungan (PTKP)</label>
+        <select id="f-ptkp" onchange="calculateForward()">
+          <optgroup label="Kategori A (TK/0, TK/1, K/0)">
+            <option value="TK/0">TK/0 - Tidak Kawin (Rp 54.000.000)</option>
+            <option value="TK/1">TK/1 - Tanggungan 1 (Rp 58.500.000)</option>
+            <option value="K/0">K/0 - Kawin Tanggungan 0 (Rp 58.500.000)</option>
+          </optgroup>
+          <optgroup label="Kategori B (TK/2, TK/3, K/1, K/2)">
+            <option value="TK/2">TK/2 - Tanggungan 2 (Rp 63.000.000)</option>
+            <option value="TK/3">TK/3 - Tanggungan 3 (Rp 67.500.000)</option>
+            <option value="K/1">K/1 - Kawin Tanggungan 1 (Rp 63.000.000)</option>
+            <option value="K/2">K/2 - Kawin Tanggungan 2 (Rp 67.500.000)</option>
+          </optgroup>
+          <optgroup label="Kategori C (K/3)">
+            <option value="K/3">K/3 - Kawin Tanggungan 3 (Rp 72.000.000)</option>
+          </optgroup>
+        </select>
+        <div id="f-kategori-badge" class="badge">Kategori A</div>
+      </div>
+
+      <div class="result-box">
+        <div class="result-row">
+          <span>Gaji Bruto:</span>
+          <span id="f-res-gaji">Rp 0</span>
+        </div>
+        <div class="result-row">
+          <span>Tarif Efektif (TER):</span>
+          <span id="f-res-rate">0%</span>
+        </div>
+        <div class="result-row highlight">
+          <span>PPh 21 Potongan/Bulan:</span>
+          <span id="f-res-pph">Rp 0</span>
+        </div>
+        <div class="result-row">
+          <span>Gaji Bersih (Take Home Pay):</span>
+          <span id="f-res-thp">Rp 0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Cari Gaji dari PPh 21 (Terbalik) -->
+    <div id="tab-reverse" class="tab-content">
+      <div class="form-group">
+        <label for="r-pph">Nominal PPh 21 Bulanan (Rp)</label>
+        <input type="text" id="r-pph" placeholder="Contoh: 250.000" oninput="formatAndCalcReverse()">
+      </div>
+
+      <div class="form-group">
+        <label for="r-ptkp">Status Tanggungan (PTKP)</label>
+        <select id="r-ptkp" onchange="calculateReverse()">
+          <optgroup label="Kategori A (TK/0, TK/1, K/0)">
+            <option value="TK/0">TK/0 - Tidak Kawin (Rp 54.000.000)</option>
+            <option value="TK/1">TK/1 - Tanggungan 1 (Rp 58.500.000)</option>
+            <option value="K/0">K/0 - Kawin Tanggungan 0 (Rp 58.500.000)</option>
+          </optgroup>
+          <optgroup label="Kategori B (TK/2, TK/3, K/1, K/2)">
+            <option value="TK/2">TK/2 - Tanggungan 2 (Rp 63.000.000)</option>
+            <option value="TK/3">TK/3 - Tanggungan 3 (Rp 67.500.000)</option>
+            <option value="K/1">K/1 - Kawin Tanggungan 1 (Rp 63.000.000)</option>
+            <option value="K/2">K/2 - Kawin Tanggungan 2 (Rp 67.500.000)</option>
+          </optgroup>
+          <optgroup label="Kategori C (K/3)">
+            <option value="K/3">K/3 - Kawin Tanggungan 3 (Rp 72.000.000)</option>
+          </optgroup>
+        </select>
+        <div id="r-kategori-badge" class="badge">Kategori A</div>
+      </div>
+
+      <div class="result-box">
+        <div class="result-row">
+          <span>Potongan PPh 21:</span>
+          <span id="r-res-pph">Rp 0</span>
+        </div>
+        <div class="result-row">
+          <span>Estimasi Tarif (TER):</span>
+          <span id="r-res-rate">0%</span>
+        </div>
+        <div class="result-row highlight">
+          <span>Estimasi Gaji Bruto Minimum:</span>
+          <span id="r-res-gaji">Rp 0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      *Perhitungan menggunakan Skema Tarif Efektif Rata-Rata (TER) PP 58/2023 untuk pemotongan bulanan (Masa Pajak Januari - November).
+    </div>
+  </div>
+
+  <script>
+    // Data Tabel TER PP 58/2023
+    const TER_TABLE = {
+      A: [
+        { max: 5400000, rate: 0 },
+        { max: 5650000, rate: 0.0025 },
+        { max: 5950000, rate: 0.005 },
+        { max: 6300000, rate: 0.0075 },
+        { max: 6750000, rate: 0.01 },
+        { max: 7500000, rate: 0.0125 },
+        { max: 8550000, rate: 0.015 },
+        { max: 9650000, rate: 0.0175 },
+        { max: 10050000, rate: 0.02 },
+        { max: 10350000, rate: 0.0225 },
+        { max: 10700000, rate: 0.025 },
+        { max: 12500000, rate: 0.03 },
+        { max: 13750000, rate: 0.04 },
+        { max: 15100000, rate: 0.05 },
+        { max: 16950000, rate: 0.06 },
+        { max: 19750000, rate: 0.07 },
+        { max: 24150000, rate: 0.08 },
+        { max: 26450000, rate: 0.09 },
+        { max: 28000000, rate: 0.10 },
+        { max: 30000000, rate: 0.11 },
+        { max: 32400000, rate: 0.12 },
+        { max: 35400000, rate: 0.13 },
+        { max: 39100000, rate: 0.14 },
+        { max: 43850000, rate: 0.15 },
+        { max: 47800000, rate: 0.16 },
+        { max: 51400000, rate: 0.17 },
+        { max: 56300000, rate: 0.18 },
+        { max: 62200000, rate: 0.19 },
+        { max: 68600000, rate: 0.20 },
+        { max: 77500000, rate: 0.21 },
+        { max: 89000000, rate: 0.22 },
+        { max: 103000000, rate: 0.23 },
+        { max: 125000000, rate: 0.24 },
+        { max: 157000000, rate: 0.25 },
+        { max: 206000000, rate: 0.26 },
+        { max: 337000000, rate: 0.27 },
+        { max: 454000000, rate: 0.28 },
+        { max: 550000000, rate: 0.29 },
+        { max: 695000000, rate: 0.30 },
+        { max: 910000000, rate: 0.31 },
+        { max: 1400000000, rate: 0.32 },
+        { max: Infinity, rate: 0.34 }
+      ],
+      B: [
+        { max: 6200000, rate: 0 },
+        { max: 6500000, rate: 0.0025 },
+        { max: 6850000, rate: 0.005 },
+        { max: 7300000, rate: 0.0075 },
+        { max: 9200000, rate: 0.01 },
+        { max: 10750000, rate: 0.015 },
+        { max: 12550000, rate: 0.02 },
+        { max: 12950000, rate: 0.025 },
+        { max: 13600000, rate: 0.03 },
+        { max: 14350000, rate: 0.04 },
+        { max: 15750000, rate: 0.05 },
+        { max: 17150000, rate: 0.06 },
+        { max: 19450000, rate: 0.07 },
+        { max: 21000000, rate: 0.08 },
+        { max: 24650000, rate: 0.09 },
+        { max: 27700000, rate: 0.10 },
+        { max: 29350000, rate: 0.11 },
+        { max: 31450000, rate: 0.12 },
+        { max: 33950000, rate: 0.13 },
+        { max: 37100000, rate: 0.14 },
+        { max: 41100000, rate: 0.15 },
+        { max: 45800000, rate: 0.16 },
+        { max: 49500000, rate: 0.17 },
+        { max: 53800000, rate: 0.18 },
+        { max: 58500000, rate: 0.19 },
+        { max: 64000000, rate: 0.20 },
+        { max: 71000000, rate: 0.21 },
+        { max: 80000000, rate: 0.22 },
+        { max: 93000000, rate: 0.23 },
+        { max: 109000000, rate: 0.24 },
+        { max: 129000000, rate: 0.25 },
+        { max: 163000000, rate: 0.26 },
+        { max: 211000000, rate: 0.27 },
+        { max: 374000000, rate: 0.28 },
+        { max: 459000000, rate: 0.29 },
+        { max: 555000000, rate: 0.30 },
+        { max: 704000000, rate: 0.31 },
+        { max: 957000000, rate: 0.32 },
+        { max: 1405000000, rate: 0.33 },
+        { max: Infinity, rate: 0.34 }
+      ],
+      C: [
+        { max: 6600000, rate: 0 },
+        { max: 6950000, rate: 0.0025 },
+        { max: 7350000, rate: 0.005 },
+        { max: 7800000, rate: 0.0075 },
+        { max: 8850000, rate: 0.01 },
+        { max: 9800000, rate: 0.0125 },
+        { max: 10950000, rate: 0.015 },
+        { max: 11200000, rate: 0.0175 },
+        { max: 12050000, rate: 0.02 },
+        { max: 12950000, rate: 0.03 },
+        { max: 14150000, rate: 0.04 },
+        { max: 15550000, rate: 0.05 },
+        { max: 17050000, rate: 0.06 },
+        { max: 19500000, rate: 0.07 },
+        { max: 22700000, rate: 0.08 },
+        { max: 24700000, rate: 0.09 },
+        { max: 26950000, rate: 0.10 },
+        { max: 28550000, rate: 0.11 },
+        { max: 30450000, rate: 0.12 },
+        { max: 32850000, rate: 0.13 },
+        { max: 35850000, rate: 0.14 },
+        { max: 39650000, rate: 0.15 },
+        { max: 44150000, rate: 0.16 },
+        { max: 47700000, rate: 0.17 },
+        { max: 51400000, rate: 0.18 },
+        { max: 56300000, rate: 0.19 },
+        { max: 62200000, rate: 0.20 },
+        { max: 68600000, rate: 0.21 },
+        { max: 77500000, rate: 0.22 },
+        { max: 89000000, rate: 0.23 },
+        { max: 103000000, rate: 0.24 },
+        { max: 125000000, rate: 0.25 },
+        { max: 157000000, rate: 0.26 },
+        { max: 206000000, rate: 0.27 },
+        { max: 337000000, rate: 0.28 },
+        { max: 454000000, rate: 0.29 },
+        { max: 550000000, rate: 0.30 },
+        { max: 695000000, rate: 0.31 },
+        { max: 910000000, rate: 0.32 },
+        { max: 1419000000, rate: 0.33 },
+        { max: Infinity, rate: 0.34 }
+      ]
+    };
+
+    // Helper: Map PTKP ke Kategori TER
+    function getCategory(ptkp) {
+      if (['TK/0', 'TK/1', 'K/0'].includes(ptkp)) return 'A';
+      if (['TK/2', 'TK/3', 'K/1', 'K/2'].includes(ptkp)) return 'B';
+      if (ptkp === 'K/3') return 'C';
+      return 'A';
+    }
+
+    // Helper: Formatter Rupiah & Parsing Number
+    function formatRupiah(val) {
+      return 'Rp ' + Math.round(val).toLocaleString('id-ID');
+    }
+
+    function parseNumber(str) {
+      return parseFloat(str.replace(/\./g, '').replace(/,/g, '')) || 0;
+    }
+
+    function formatInputNumber(elem) {
+      let raw = elem.value.replace(/\D/g, '');
+      elem.value = raw ? parseInt(raw, 10).toLocaleString('id-ID') : '';
+    }
+
+    // Tab Handler
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'forward') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tab-forward').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tab-reverse').classList.add('active');
+      }
+    }
+
+    // TAB 1: Forward Calculation
+    function formatAndCalcForward() {
+      formatInputNumber(document.getElementById('f-gaji'));
+      calculateForward();
+    }
+
+    function calculateForward() {
+      const gaji = parseNumber(document.getElementById('f-gaji').value);
+      const ptkp = document.getElementById('f-ptkp').value;
+      const cat = getCategory(ptkp);
+
+      document.getElementById('f-kategori-badge').innerText = `Kategori ${cat}`;
+
+      let rate = 0;
+      const rates = TER_TABLE[cat];
+
+      for (let i = 0; i < rates.length; i++) {
+        if (gaji <= rates[i].max) {
+          rate = rates[i].rate;
+          break;
+        }
+      }
+
+      const pph = gaji * rate;
+      const thp = gaji - pph;
+
+      document.getElementById('f-res-gaji').innerText = formatRupiah(gaji);
+      document.getElementById('f-res-rate').innerText = (rate * 100).toFixed(2) + '%';
+      document.getElementById('f-res-pph').innerText = formatRupiah(pph);
+      document.getElementById('f-res-thp').innerText = formatRupiah(thp);
+    }
+
+    // TAB 2: Reverse Calculation (Eksperimental)
+    function formatAndCalcReverse() {
+      formatInputNumber(document.getElementById('r-pph'));
+      calculateReverse();
+    }
+
+    function calculateReverse() {
+      const targetPph = parseNumber(document.getElementById('r-pph').value);
+      const ptkp = document.getElementById('r-ptkp').value;
+      const cat = getCategory(ptkp);
+
+      document.getElementById('r-kategori-badge').innerText = `Kategori ${cat}`;
+
+      if (targetPph <= 0) {
+        document.getElementById('r-res-pph').innerText = 'Rp 0';
+        document.getElementById('r-res-rate').innerText = '0%';
+        document.getElementById('r-res-gaji').innerText = 'Rp 0';
+        return;
+      }
+
+      let estGaji = 0;
+      let estRate = 0;
+
+      const rates = TER_TABLE[cat];
+
+      // Iterasi mencari interval bracket TER yang pas
+      for (let i = 0; i < rates.length; i++) {
+        const rate = rates[i].rate;
+        if (rate === 0) continue;
+
+        const prevMax = i > 0 ? rates[i-1].max : 0;
+        const currentMax = rates[i].max;
+
+        const minPphAtBracket = (prevMax + 1) * rate;
+        const maxPphAtBracket = currentMax === Infinity ? Infinity : currentMax * rate;
+
+        if (targetPph >= minPphAtBracket && targetPph <= maxPphAtBracket) {
+          estRate = rate;
+          estGaji = targetPph / rate;
+          break;
+        }
+      }
+
+      document.getElementById('r-res-pph').innerText = formatRupiah(targetPph);
+      document.getElementById('r-res-rate').innerText = (estRate * 100).toFixed(2) + '%';
+      document.getElementById('r-res-gaji').innerText = formatRupiah(estGaji);
+    }
+  </script>
+</body>
+</html>
